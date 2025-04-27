@@ -21,7 +21,12 @@ public class TestForm1Controller : BaseController
     [SerializeField] [HideInInspector] private Image panel = null;
     [SerializeField] [HideInInspector] private TextMeshProUGUI title = null;
     [SerializeField] [HideInInspector] private Image background = null;
-//结束    
+    [SerializeField] [HideInInspector] private GameObject nameTxtGo = null;
+    [SerializeField] [HideInInspector] private TextMeshProUGUI nameTxt = null;
+//结束
+
+
+
 
     protected override void OnInit()
     {
