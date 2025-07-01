@@ -47,14 +47,41 @@ public class UIFormInspector : Editor
             DelNullReference();
         }
 
-        if (GUILayout.Button("生成代码[show]"))
+        if (GUILayout.Button("生成代码"))
         {
-            GenerateCode(true);
-        }
+            var allComps = uiFormScript.GetAllComps();
+            var scriptTxt = GetStrCopyBuffer(allComps);
 
-        if (GUILayout.Button("生成代码[hide]"))
-        {
-            GenerateCode(false);
+            BaseController[] baseCtrls = uiFormScript.GetComponents<BaseController>();
+            if (baseCtrls.Length > 0)
+            {
+                string scriptName = baseCtrls[0].GetType().Name;
+
+                var files = Directory.GetFiles(genScriptPath, "*.cs", SearchOption.AllDirectories);
+                var filePath = string.Empty;
+                foreach (var pathT in files)
+                {
+                    if (pathT.Contains(scriptName))
+                    {
+                        filePath = pathT;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(filePath) == false)
+                {
+                    string fileContent = File.ReadAllText(filePath);
+                    string pattern = @"\/\/开始[\s\S]*?\/\/结束";
+                    string newContent = Regex.Replace(fileContent, pattern, "", RegexOptions.Singleline);
+
+                    var newT = tmpTxtCtrl + scriptTxt; //  BaseController { 后面的内容
+                    var newContent2 = newContent.Replace(tmpTxtCtrl, newT);
+                    File.WriteAllText(filePath, newContent2);
+                    AssetDatabase.Refresh();
+
+                    Debug.LogError($"修改脚本={scriptName}");
+                }
+            }
         }
 
         if (GUILayout.Button("填充序列值"))
@@ -169,43 +196,6 @@ public class UIFormInspector : Editor
         serializedObject.UpdateIfRequiredOrScript();
     }
 
-    private void GenerateCode(bool isShow)
-    {
-        var allComps = uiFormScript.GetAllComps();
-        var scriptTxt = GetStrCopyBuffer(allComps, isShow);
-
-        BaseController[] baseCtrls = uiFormScript.GetComponents<BaseController>();
-        if (baseCtrls.Length > 0)
-        {
-            string scriptName = baseCtrls[0].GetType().Name;
-
-            var files = Directory.GetFiles(genScriptPath, "*.cs", SearchOption.AllDirectories);
-            var filePath = string.Empty;
-            foreach (var pathT in files)
-            {
-                if (pathT.Contains(scriptName))
-                {
-                    filePath = pathT;
-                    break;
-                }
-            }
-
-            if (string.IsNullOrEmpty(filePath) == false)
-            {
-                string fileContent = File.ReadAllText(filePath);
-                string pattern = @"\/\/开始[\s\S]*?\/\/结束";
-                string newContent = Regex.Replace(fileContent, pattern, "", RegexOptions.Singleline);
-
-                var newT = tmpTxtCtrl + scriptTxt; //  BaseController { 后面的内容
-                var newContent2 = newContent.Replace(tmpTxtCtrl, newT);
-                File.WriteAllText(filePath, newContent2);
-                AssetDatabase.Refresh();
-
-                Debug.LogError($"修改脚本={scriptName}");
-            }
-        }
-    }
-
     private void AddReference(SerializedProperty dataProperty, string key, Object obj)
     {
         int index = dataProperty.arraySize;
@@ -218,26 +208,23 @@ public class UIFormInspector : Editor
         element.FindPropertyRelative("Obj").objectReferenceValue = obj;
     }
 
-    private string GetStrCopyBuffer(Dictionary<string, UICompData> allComps, bool isShow)
+    private string GetStrCopyBuffer(Dictionary<string, UICompData> allComps)
     {
-        string scriptTxt = "\n//开始\n";
+        string scriptTxt = "//开始\n";
         foreach (var item in allComps)
         {
             if (item.Value.Comp != null)
             {
                 var nameStr = item.Key.Substring(0, 1).ToLower() + item.Key.Substring(1); // 首字母小写
-                if (isShow)
-                    scriptTxt += $"    [SerializeField] private {item.Value.Comp.GetType().Name} {nameStr} = null;\n";
-                else
-                    scriptTxt += $"    [SerializeField] [HideInInspector] private {item.Value.Comp.GetType().Name} {nameStr} = null;\n";
+                // scriptTxt += $"    [SerializeField] [HideInInspector] private {item.Value.Comp.GetType().Name} {nameStr} =null;\n";
+                // scriptTxt += $"    [SerializeField] [HideInInspector] private {item.Value.Comp.GetType().Name} {nameStr} = null;\n";
+                scriptTxt += $"    [SerializeField] private {item.Value.Comp.GetType().Name} {nameStr} = null;\n";
             }
             else
             {
                 var nameStr = item.Key.Substring(0, 1).ToLower() + item.Key.Substring(1); // 首字母小写
-                if (isShow)
-                    scriptTxt += $"    [SerializeField] private GameObject {nameStr} = null;\n";
-                else
-                    scriptTxt += $"    [SerializeField] [HideInInspector] private GameObject {nameStr} = null;\n";
+                // scriptTxt += $"    [SerializeField] [HideInInspector] private GameObject {nameStr} = null;\n";
+                scriptTxt += $"    [SerializeField] private GameObject {nameStr} = null;\n";
             }
         }
 
@@ -247,5 +234,5 @@ public class UIFormInspector : Editor
     }
 
 
-    private string tmpTxtCtrl = ": BaseController\r\n{"; //CRLF换行符
+    private string tmpTxtCtrl = ": BaseController\r\n{\r\n"; //CRLF换行符
 }

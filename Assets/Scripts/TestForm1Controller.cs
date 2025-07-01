@@ -13,21 +13,19 @@ using UnityEngine.UI;
 public class TestForm1Controller : BaseController
 {
 //开始
-    [SerializeField] [HideInInspector] private Toggle toggle = null;
-    [SerializeField] [HideInInspector] private Button button = null;
-    [SerializeField] [HideInInspector] private RawImage rawImage = null;
-    [SerializeField] [HideInInspector] private Slider slider = null;
-    [SerializeField] [HideInInspector] private ScrollRect scrollView = null;
-    [SerializeField] [HideInInspector] private Image panel = null;
-    [SerializeField] [HideInInspector] private TextMeshProUGUI title = null;
-    [SerializeField] [HideInInspector] private Image background = null;
-    [SerializeField] [HideInInspector] private GameObject nameTxtGo = null;
-    [SerializeField] [HideInInspector] private TextMeshProUGUI nameTxt = null;
+    [SerializeField] private Toggle toggle = null;
+    [SerializeField] private Button button = null;
+    [SerializeField] private RawImage rawImage = null;
+    [SerializeField] private Slider slider = null;
+    [SerializeField] private ScrollRect scrollView = null;
+    [SerializeField] private Image panel = null;
+    [SerializeField] private TextMeshProUGUI title = null;
+    [SerializeField] private Image background = null;
+    [SerializeField] private GameObject nameTxtGo = null;
+    [SerializeField] private TextMeshProUGUI nameTxt = null;
+    [SerializeField] private Image image_new = null;
+    [SerializeField] private GameObject image_new2 = null;
 //结束
-
-
-
-
     protected override void OnInit()
     {
         base.OnInit();
