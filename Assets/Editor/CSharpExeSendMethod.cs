@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-public class CSharpExecute : EditorWindow
+public class CSharpExeSendMethod : EditorWindow
 {
     private const string FILE_PATH_KEY = "CSharpExecute_FilePath";
     private string filePath = @"D:/git_Project/UIPanelField/Assets/Scripts/SLGKingCtrl.cs";
@@ -19,10 +19,10 @@ public class CSharpExecute : EditorWindow
     private List<object[]> methodParameters = new List<object[]>();
     private Vector2 scrollPosition;
 
-    [MenuItem("Tools/执行C#文件")]
+    [MenuItem("Tools/执行C#文件_Send_**")]
     public static void ShowWindow()
     {
-        GetWindow<CSharpExecute>("执行C#文件");
+        GetWindow<CSharpExeSendMethod>("执行_Send方法");
     }
 
     void OnEnable()
@@ -58,18 +58,22 @@ public class CSharpExecute : EditorWindow
             {
                 OpenFileInEditor(filePath);
             }
+
             if (GUILayout.Button("在资源管理器中显示"))
             {
                 EditorUtility.RevealInFinder(filePath);
             }
+
             if (GUILayout.Button("重新解析文件"))
             {
                 ParseCSharpFile(filePath);
             }
+
             EditorGUILayout.EndHorizontal();
         }
+
         EditorGUILayout.Space();
-        
+
         GUILayout.Label("C# 执行Send_**的静态方法工具", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
@@ -85,7 +89,7 @@ public class CSharpExecute : EditorWindow
                 filePath = selectedPath;
                 selectedFileName = Path.GetFileName(selectedPath);
                 ParseCSharpFile(filePath);
-                
+
                 // 立即保存路径到 EditorPrefs
                 EditorPrefs.SetString(FILE_PATH_KEY, filePath);
             }
@@ -93,21 +97,24 @@ public class CSharpExecute : EditorWindow
 
         EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.BeginHorizontal("Box");
         // 显示选中的文件名、命名空间和类名
         if (!string.IsNullOrEmpty(selectedFileName))
         {
-            EditorGUILayout.LabelField("选中的文件:", selectedFileName);
+            EditorGUILayout.LabelField($"选中的文件:   {selectedFileName}");
         }
 
         if (!string.IsNullOrEmpty(namespaceName))
         {
-            EditorGUILayout.LabelField("命名空间:", namespaceName);
+            EditorGUILayout.LabelField($"命名空间:   {namespaceName}");
         }
 
         if (!string.IsNullOrEmpty(className))
         {
-            EditorGUILayout.LabelField("类名:", className);
+            EditorGUILayout.LabelField($"类名:   {className}");
         }
+
+        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
 
@@ -243,10 +250,10 @@ public class CSharpExecute : EditorWindow
             Debug.LogError($"方法执行错误: {ex}");
         }
     }
-    
+
     public void ShowMsg(string content)
     {
-        ShowNotification(new GUIContent(content),1.5f);
+        ShowNotification(new GUIContent(content), 2f);
     }
 
     private void ParseCSharpFile(string path)
@@ -306,7 +313,7 @@ public class CSharpExecute : EditorWindow
 
             // 查找包含指定命名空间和类名的类型
             Type targetType = null;
-            
+
             foreach (var assembly in assemblies)
             {
                 try
@@ -397,10 +404,10 @@ public class CSharpExecute : EditorWindow
                 filePath = draggedPath;
                 selectedFileName = Path.GetFileName(draggedPath);
                 ParseCSharpFile(filePath);
-                
+
                 // 保存路径到 EditorPrefs
                 EditorPrefs.SetString(FILE_PATH_KEY, filePath);
-                
+
                 Repaint();
                 break;
             }
